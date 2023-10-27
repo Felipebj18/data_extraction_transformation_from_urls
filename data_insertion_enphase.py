@@ -1,6 +1,6 @@
 import psycopg2
 from datetime import datetime, timezone, timedelta
-from enphase import load_data,openJson
+from get_json import load_data,openJson
 # Datos de conexión a la base de datos
 db_params = {
     "host": "54.145.74.186",

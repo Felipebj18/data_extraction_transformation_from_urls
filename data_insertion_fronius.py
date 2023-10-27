@@ -1,4 +1,4 @@
-from fronius import load_data,openJson
+from get_json import load_data,openJson
 import psycopg2
 from datetime import datetime, timezone, timedelta
 
