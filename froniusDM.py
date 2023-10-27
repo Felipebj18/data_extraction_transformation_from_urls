@@ -8,21 +8,16 @@ def openJson(fileName):
     return datos
 
 def load_data(urls):
-    for url_id,attributes in urls:
-        aux_data = get_json_from_url(attributes["url"])
-        if(url_id=="url1"):
-            radiation_fronius_1=aux_data["Radiacion"]["value"]
-            temp1_fronius_1 = aux_data["Temperatura_1"]["value"]
-            temp2_fronius_2 = aux_data["Temperatura_2"]["value"]
-            str_f=f"rad:{radiation_fronius_1},t1:{temp1_fronius_1},t2:{temp2_fronius_2}"
-        return str_f
-        # elif(url_id=="url2"):
-        # elif(url_id=="url3"):    
+    for url_id in urls:
+        url=urls[url_id]["url"]
+        aux_data = get_json_from_url(url)
         
-
-# id = data["id"]
-# type = data["type"]
-# temp1=data["Temperatura_1"]["value"]
-# temp2=data["Temperatura_2"]["value"]
-
+        id=aux_data["id"]
+        radiation_fronius=aux_data["Radiacion"]["value"]
+        temp1_fronius = aux_data["Temperatura_1"]["value"]
+        temp2_fronius = aux_data["Temperatura_2"]["value"]
+        result_dict = {"Radicion":radiation_fronius,"Temperatura_1":temp1_fronius,"Temperatura_2":temp2_fronius}
+        final_dict = {id:result_dict}
+        return final_dict
+ 
 print(load_data(openJson("./urlsFroniusDM.json")))
