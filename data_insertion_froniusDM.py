@@ -22,7 +22,7 @@ conn = psycopg2.connect(**db_params)
 cur = conn.cursor()
 
 insert_query = """
-    INSERT INTO DIM_FroniusDataManager (FDM_Radiacion, FDM_Temperatura1, FDM_Temperatura2, FD_NominalPower, FDM_TimeStamp)
+    INSERT INTO DIM_FroniusDataManager (FDM_Radiacion, FDM_Temperatura1, FDM_Temperatura2, FDM_NominalPower, FDM_TimeStamp)
     VALUES (%s, %s, %s, %s, %s)
 """
 
