@@ -23,8 +23,8 @@ conn = psycopg2.connect(**db_params)
 cur = conn.cursor()
 
 insert_query = """
-    INSERT INTO DIM_Enphase (E_EnergyDay, E_PAC, P_I1, P_I2, P_I3, P_I4, P_I5, P_I6, P_I7, P_I8, P_I9, P_I10, P_I11, P_I12, P_I13, P_I14, P_I15, P_I16, P_I17, P_I18, P_I19, P_I20, E_NominalPower, E_TimeStamp)
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    INSERT INTO DIM_Enphase (E_EnergyDay, E_PAC, P_I1, P_I2, P_I3, P_I4, P_I5, P_I6, P_I7, P_I8, P_I9, P_I10, P_I11, P_I12, P_I13, P_I14, P_I15, P_I16, P_I17, P_I18, P_I19, P_I20, E_NominalPower, E_TimeStamp,E_DeviceName)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s)
 """
 
 for device_id, device_data in data.items():
@@ -54,7 +54,8 @@ for device_id, device_data in data.items():
             int(device_data.get('P_I19', 0)),
             int(device_data.get('P_I20', 0)),
             e_nominal_power,
-            current_time_bogota
+            current_time_bogota,
+            device_id
         )
     )
 
