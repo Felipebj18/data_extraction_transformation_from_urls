@@ -1,6 +1,6 @@
 import psycopg2
 from datetime import datetime, timezone, timedelta
-from froniusDM import load_data, openJson
+from get_json import load_data, openJson
 
 # Datos de conexión a la base de datos
 db_params = {
@@ -22,8 +22,8 @@ conn = psycopg2.connect(**db_params)
 cur = conn.cursor()
 
 insert_query = """
-    INSERT INTO DIM_FroniusDataManager (FDM_Radiacion, FDM_Temperatura1, FDM_Temperatura2, FD_NominalPower, FDM_TimeStamp)
-    VALUES (%s, %s, %s, %s, %s)
+    INSERT INTO DIM_FroniusDataManager (FDM_Radiacion, FDM_Temperatura1, FDM_Temperatura2, FDM_NominalPower, FDM_TimeStamp,FDM_DeviceName)
+    VALUES (%s, %s, %s, %s, %s,%s)
 """
 
 for device_id, device_data in data.items():
@@ -34,7 +34,8 @@ for device_id, device_data in data.items():
             device_data.get('Temperatura_1', 0),
             device_data.get('Temperatura_2', 0),
             e_nominal_power,
-            current_time_bogota
+            current_time_bogota,
+            device_id
         )
     )
 
