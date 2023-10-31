@@ -13,7 +13,7 @@ db_params = {
 try:
     # Establecer la conexión a la base de datos
     conn = psycopg2.connect(**db_params)
-
+    
     # Crear un cursor para ejecutar consultas
     cur = conn.cursor()
 
