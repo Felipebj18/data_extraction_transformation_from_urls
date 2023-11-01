@@ -1,4 +1,6 @@
 import psycopg2
+from datetime import datetime, timezone
+import pytz
 
 def connect_to_database(db_params):
     try:
@@ -66,30 +68,6 @@ def calculateFdInd(records):
 
     ind_fd_iacvsidc = records[5] / records[6]
     indicators.append(ind_fd_iacvsidc)
-    # for record in records:
-    #     print()
-
-    #     # energyDay = record[0]
-    #     # Calcula los indicadores
-    #     # ind_fd_fc = dim_fronius_data['fd_energyday'] / (dim_fronius_data['fd_nominalpower'] * 24)
-    #     # ind_fd_fc = 
-    #     # print(energyDay)
-    #     # ind_fd_hsp = (dim_fronius_data['fd_energyday'] / 2) / 1000
-    #     # ind_fd_uacvsudc = dim_fronius_data['fd_uac'] / dim_fronius_data['fd_udc']
-    #     # ind_fd_iacvsidc = dim_fronius_data['fd_iac'] / dim_fronius_data['fd_idc']
-    #     # ind_e_hsp = (dim_enphase_data['e_energyday'] / 2) / 1000
-    #     # ind_e_fc = dim_enphase_data['e_energyday'] / (dim_enphase_data['e_nominalpower'] * 24)
-
-    #     # # Calcular ind_e_meanp - Promedio de las potencias P_I1 a P_I20
-    #     # potencia_promedio = sum(dim_enphase_data[f'P_I{i}'] for i in range(1, 21)) / 20
-    #     # ind_e_meanp = potencia_promedio
-    #     # Realiza tus cálculos personalizados aquí para cada registro.
-    #     # Aquí hay un ejemplo simple para calcular un indicador ficticio:
-    #     # Supongamos que queremos calcular el indicador como la suma de dos columnas del registro.
-    #     # indicator = record[1] + record[2]  # Suma de la segunda y tercera columna (cambia esto según tus necesidades).
-        
-    #     # Agrega el indicador calculado a la lista de indicadores.
-    #     # indicators.append(indicator)
     
     return indicators
 
@@ -105,9 +83,49 @@ def calculateEInd(record):
 
     return indicators
 
+def insertIntoDwh(db_params, id_fd1, id_fd2, id_fd3, id_fd4, id_fd5, id_fd6, id_e,
+                  ind_fd1_fc, ind_fd2_fc, ind_fd3_fc, ind_fd4_fc, ind_fd5_fc, ind_fd6_fc,
+                  ind_fd1_hsp, ind_fd2_hsp, ind_fd3_hsp, ind_fd4_hsp, ind_fd5_hsp, ind_fd6_hsp,
+                  ind_fd1_uacvsudc, ind_fd2_uacvsudc, ind_fd3_uacvsudc, ind_fd4_uacvsudc, ind_fd5_uacvsudc, ind_fd6_uacvsudc,
+                  ind_fd1_iacvsidc, ind_fd2_iacvsidc, ind_fd3_iacvsidc, ind_fd4_iacvsidc, ind_fd5_iacvsidc, ind_fd6_iacvsidc,
+                  ind_e_hsp, ind_e_fc, ind_e_meanp,
+                  facts_timestamp, e_devicename, fd1_devicename, fd2_devicename, fd3_devicename, fd4_devicename, 
+                  fd5_devicename, fd6_devicename):
     
+    
+    try: 
+        conn = psycopg2.connect(**db_params)
+        cursor = conn.cursor()
 
-        # return
+        insert_query = """
+                INSERT INTO facts_ssfv (id_fd1, id_fd2, id_fd3, id_fd4, id_fd5, id_fd6, id_e,
+                ind_fd1_fc, ind_fd2_fc, ind_fd3_fc, ind_fd4_fc, ind_fd5_fc, ind_fd6_fc,
+                ind_fd1_hsp, ind_fd2_hsp, ind_fd3_hsp, ind_fd4_hsp, ind_fd5_hsp, ind_fd6_hsp,
+                ind_fd1_uacvsudc, ind_fd2_uacvsudc, ind_fd3_uacvsudc, ind_fd4_uacvsudc, ind_fd5_uacvsudc, ind_fd6_uacvsudc,
+                ind_fd1_iacvsidc, ind_fd2_iacvsidc, ind_fd3_iacvsidc, ind_fd4_iacvsidc, ind_fd5_iacvsidc, ind_fd6_iacvsidc,
+                ind_e_hsp, ind_e_fc, ind_e_meanp,
+                facts_timestamp, e_devicename, fd1_devicename, fd2_devicename, fd3_devicename, fd4_devicename, 
+                fd5_devicename, fd6_devicename)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+        
+        cursor.execute(insert_query, (id_fd1, id_fd2, id_fd3, id_fd4, id_fd5, id_fd6, id_e,
+                  ind_fd1_fc, ind_fd2_fc, ind_fd3_fc, ind_fd4_fc, ind_fd5_fc, ind_fd6_fc,
+                  ind_fd1_hsp, ind_fd2_hsp, ind_fd3_hsp, ind_fd4_hsp, ind_fd5_hsp, ind_fd6_hsp,
+                  ind_fd1_uacvsudc, ind_fd2_uacvsudc, ind_fd3_uacvsudc, ind_fd4_uacvsudc, ind_fd5_uacvsudc, ind_fd6_uacvsudc,
+                  ind_fd1_iacvsidc, ind_fd2_iacvsidc, ind_fd3_iacvsidc, ind_fd4_iacvsidc, ind_fd5_iacvsidc, ind_fd6_iacvsidc,
+                  ind_e_hsp, ind_e_fc, ind_e_meanp,
+                  facts_timestamp, e_devicename, fd1_devicename, fd2_devicename, fd3_devicename, fd4_devicename, 
+                  fd5_devicename, fd6_devicename))
+        
+        conn.commit()
+
+        conn.close()
+        
+        print("Insersión a la DB realizada")
+
+    except Exception as e:
+        print(f"Error al insertar los datos en la DB: {e}")
+
 
 if __name__ == "__main__":
 
@@ -133,22 +151,125 @@ if __name__ == "__main__":
         if last_dim_enphase_record:
         #    print("Último registro de dim_enphase:", last_dim_enphase_record)
            e_indicators = calculateEInd(last_dim_enphase_record)
-           print(e_indicators)
+        #    print("Enphase records")
+        #    print(last_dim_enphase_record)
+        #    print("Indicadores Enphase")
+        #    print(e_indicators)
         
         # if last_dim_froniusdatamanager_record:
         #    print("Último registro de dim_froniusdatamanager:", last_dim_froniusdatamanager_record)
-        
+
         if last_dim_froniusdevice_records:
+            # print("FD data:")
+            # print()
             # print("Últimos registros de dim_froniusdevice:")
             for record in last_dim_froniusdevice_records:
                 fd_indicators.append(calculateFdInd(record))
-
-            print(fd_indicators)
+            # print("Indicadores FD")
+            # print(fd_indicators)
 
         conn.close()
 
+
+    #IDs FDs
+    id_fd1 = last_dim_froniusdevice_records[0][0]
+    id_fd2 = last_dim_froniusdevice_records[1][0]
+    id_fd3 = last_dim_froniusdevice_records[2][0]
+    id_fd4 = last_dim_froniusdevice_records[3][0]
+    id_fd5 = last_dim_froniusdevice_records[4][0]
+    id_fd6 = last_dim_froniusdevice_records[5][0]
+
+    #ID E
+    id_e = last_dim_enphase_record[0]
+
+    #ID FDM
+    id_fdm = last_dim_froniusdatamanager_record[0]
+
+    #Indicadores FD
+    ind_fd1_fc = fd_indicators[0][0]
+    ind_fd2_fc = fd_indicators[1][0]
+    ind_fd3_fc = fd_indicators[2][0]
+    ind_fd4_fc = fd_indicators[3][0]
+    ind_fd5_fc = fd_indicators[4][0]
+    ind_fd6_fc = fd_indicators[5][0]
+
+    ind_fd1_hsp = fd_indicators[0][1]
+    ind_fd2_hsp = fd_indicators[1][1]
+    ind_fd3_hsp = fd_indicators[2][1]
+    ind_fd4_hsp = fd_indicators[3][1]
+    ind_fd5_hsp = fd_indicators[4][1]
+    ind_fd6_hsp = fd_indicators[5][1]
+
+    ind_fd1_uacvsudc = fd_indicators[0][2]
+    ind_fd2_uacvsudc = fd_indicators[1][2]
+    ind_fd3_uacvsudc = fd_indicators[2][2]
+    ind_fd4_uacvsudc = fd_indicators[3][2]
+    ind_fd5_uacvsudc = fd_indicators[4][2]
+    ind_fd6_uacvsudc = fd_indicators[5][2]
+
+    ind_fd1_iacvsidc = fd_indicators[0][3]
+    ind_fd2_iacvsidc = fd_indicators[1][3]
+    ind_fd3_iacvsidc = fd_indicators[2][3]
+    ind_fd4_iacvsidc = fd_indicators[3][3]
+    ind_fd5_iacvsidc = fd_indicators[4][3]
+    ind_fd6_iacvsidc = fd_indicators[5][3]
+
+    #Indicadores E
+    ind_e_hsp = e_indicators[0]
+    ind_e_fc = e_indicators[1]
+    potencia_promedio = sum(last_dim_enphase_record[i] for i in range(3, 23)) / 20
+    ind_e_meanp = potencia_promedio
+
+    #Facts timestamptz
+    # Obtiene la fecha y hora actual en la zona horaria de Bogotá
+    bogota_timezone = pytz.timezone("America/Bogota")
+    facts_timestamp = datetime.now(bogota_timezone)
+
+    #E devicename
+    e_devicename = last_dim_enphase_record[25]
+
+    #FD devicenames
+    fd1_devicename = last_dim_froniusdevice_records[0][10]
+    fd2_devicename = last_dim_froniusdevice_records[1][10]
+    fd3_devicename = last_dim_froniusdevice_records[2][10]
+    fd4_devicename = last_dim_froniusdevice_records[3][10]
+    fd5_devicename = last_dim_froniusdevice_records[4][10]
+    fd6_devicename = last_dim_froniusdevice_records[5][10]
+    
+
+    insertIntoDwh(db_params, id_fd1, id_fd2, id_fd3, id_fd4, id_fd5, id_fd6, id_e,
+                  ind_fd1_fc, ind_fd2_fc, ind_fd3_fc, ind_fd4_fc, ind_fd5_fc, ind_fd6_fc,
+                  ind_fd1_hsp, ind_fd2_hsp, ind_fd3_hsp, ind_fd4_hsp, ind_fd5_hsp, ind_fd6_hsp,
+                  ind_fd1_uacvsudc, ind_fd2_uacvsudc, ind_fd3_uacvsudc, ind_fd4_uacvsudc, ind_fd5_uacvsudc, ind_fd6_uacvsudc,
+                  ind_fd1_iacvsidc, ind_fd2_iacvsidc, ind_fd3_iacvsidc, ind_fd4_iacvsidc, ind_fd5_iacvsidc, ind_fd6_iacvsidc,
+                  ind_e_hsp, ind_e_fc, ind_e_meanp,
+                  facts_timestamp, e_devicename, fd1_devicename, fd2_devicename, fd3_devicename, fd4_devicename, 
+                  fd5_devicename, fd6_devicename)
+
+
+    # print("############ VARIABLES PARA INSERT #############")
+    # print(id_fd1, id_fd2, id_fd3, id_fd4, id_fd5, id_fd6)
+    # print(id_e)
+    # print(id_fdm)
+    # print(ind_fd1_fc, ind_fd2_fc, ind_fd3_fc, ind_fd4_fc, ind_fd5_fc, ind_fd6_fc)
+    # print(ind_fd1_hsp, ind_fd2_hsp, ind_fd3_hsp, ind_fd4_hsp, ind_fd5_hsp, ind_fd6_hsp)
+    # print(ind_fd1_uacvsudc, ind_fd2_uacvsudc, ind_fd3_uacvsudc, ind_fd4_uacvsudc, ind_fd5_uacvsudc, ind_fd6_uacvsudc)
+    # print(ind_fd1_iacvsidc, ind_fd2_iacvsidc, ind_fd3_iacvsidc, ind_fd4_iacvsidc, ind_fd5_iacvsidc, ind_fd6_iacvsidc)
+    # print(ind_e_hsp, ind_e_fc, ind_e_meanp)
+    # print(facts_timestamp)   
+    # print(e_devicename) 
+    # print(fd1_devicename, fd2_devicename, fd3_devicename, fd4_devicename, fd5_devicename, fd6_devicename)
+
+
+
 '''
-id_fd1	id_fd2	id_fd3	id_fd4	id_fd5	id_fd6	id_e	id_fdm	ind_fd1_fc	ind_fd2_fc	ind_fd3_fc	ind_fd4_fc	ind_fd5_fc	ind_fd6_fc	ind_fd1_hsp	ind_fd2_hsp	ind_fd3_hsp	ind_fd4_hsp	ind_fd5_hsp	ind_fd6_hsp	ind_fd1_uacvsudc	ind_fd2_uacvsudc	ind_fd3_uacvsudc	ind_fd4_uacvsudc	ind_fd5_uacvsudc	ind_fd6_uacvsudc	ind_fd1_iacvsidc	ind_fd2_iacvsidc	ind_fd3_iacvsidc	ind_fd4_iacvsidc	ind_fd5_iacvsidc	ind_fd6_iacvsidc	ind_e_hsp	ind_e_fc	ind_e_meanp	facts_timestamp	e_devicename	fd1_devicename	fd2_devicename	fd3_devicename	fd4_devicename	fd5_devicename	fd6_devicename	fdm_devicename	fk_fd1	fk_fd2	fk_fd3	fk_fd4	fk_fd5	fk_fd6 timestamp_facts
+id_fd1	id_fd2	id_fd3	id_fd4	id_fd5	id_fd6	id_e id_fdm	ind_fd1_fc	ind_fd2_fc	ind_fd3_fc	
+ind_fd4_fc	ind_fd5_fc	ind_fd6_fc	ind_fd1_hsp	ind_fd2_hsp	ind_fd3_hsp	ind_fd4_hsp	ind_fd5_hsp	
+ind_fd6_hsp	ind_fd1_uacvsudc	ind_fd2_uacvsudc	ind_fd3_uacvsudc	ind_fd4_uacvsudc	
+ind_fd5_uacvsudc	ind_fd6_uacvsudc	ind_fd1_iacvsidc	ind_fd2_iacvsidc	ind_fd3_iacvsidc	
+ind_fd4_iacvsidc	ind_fd5_iacvsidc	ind_fd6_iacvsidc	ind_e_hsp	ind_e_fc	ind_e_meanp	
+facts_timestamp	e_devicename	fd1_devicename	fd2_devicename	fd3_devicename	fd4_devicename	
+fd5_devicename	fd6_devicename	fdm_devicename	fk_fd1	fk_fd2	fk_fd3	fk_fd4	fk_fd5	fk_fd6
 '''
 
 
