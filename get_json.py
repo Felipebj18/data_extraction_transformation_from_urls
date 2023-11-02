@@ -14,17 +14,20 @@ def get_json_from_url(url):
         print(f"An error occurred: {str(e)}")
         return None
 
-def openJson(fileName):
-    with open(fileName, 'r') as archivo_json:
-        datos = json.load(archivo_json)
+# def openJson(fileName):
+#     with open(fileName, 'r') as archivo_json:
+#         datos = json.load(archivo_json)
 
-    return datos
+#     return datos
 
 
 def load_data(urls):
+    
+    with open(urls, 'r') as archivo_json:
+        datos = json.load(archivo_json)
     final_dict={}
-    for url_id in urls:
-        url=urls[url_id]["url"]
+    for url_id in datos:
+        url=datos[url_id]["url"]
         aux_data = get_json_from_url(url)
         result_dict = {}
         for key, value in aux_data.items():
